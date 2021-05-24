@@ -93,7 +93,13 @@ function setup(){
 function draw() {  
   background(46,139,87);
   if(gameState===0) {
-    dog.addImage(sadImg);
+    foodObj.display();
+    if(FoodS === 0) {
+      dog.addImage(happyImg);
+    } else {
+      dog.addImage(sadImg);
+    }
+
   }
 
   drawSprites();
