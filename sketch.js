@@ -4,15 +4,13 @@ const Bodies = Matter.Bodies;
 
 //Create variables here
 var dog,happyDog;
-var FoodS, lastFed,fedTime,FeedD;
+var FoodS, dogName;
 var database;
-var foodObj,addFood,feed;
-var dogName;
-var button;
+var foodObj,addFood;
+var Bath, Sleep, Play, PlayInGarden, button, input,feed;
 var gameState =0;
 var fedTime, currentTime;
-var readState;
-var Bath, Sleep, Play, PlayInGarden;
+var display;
 var sadImg, happyImg, milkImg,bedRoomImg, gardenImg, washRoomImg;
 
 function preload(){
@@ -36,58 +34,27 @@ function setup(){
   foodStockRef.on("value",readStock);
  
   var FeedTimeRef=database.ref('FeedTime');
-  FeedTimeRef.on("value",readFeedTime);
+  FeedTimeRef.on("value",function(data) {
+    fedTime=data.val();
+  });
 
-  readState = database.ref('gameState');
+  var readState = database.ref('gameState');
   readState.on("value", function(data){
      gameState= data.val();
   });
   
-  dog=createSprite(550,250,50,50);
- // dog.addImage(sadImg);
-  dog.scale=0.2;  
-  foodObj = new Food();
   var dogN = database.ref('Name');
   dogN.on("value", function(data) {
     dogName = data.val();
   });
-  //console.log(dogName);
-  if (dogName === "undefined") {
-      input = createInput("");
-      input.position(820, 400);
 
-      button = createButton("Press this Button after Giving the Name");
-      button.position(780, 450);  
-      // console.log(input.value());
-      
-      button.mousePressed(()=> {
-        input.hide();
-        button.hide();
-        dogName =input.value();
-        database.ref('/').update({
-        Name:dogName
-        })    
-    });
-  }
+  dog=createSprite(550,230,50,50);
+  dog.scale=0.25;  
 
-   //Creating buttons
-  feed = createButton("Feed the Dog");
-  feed.position(360,60);
-
-  addFood = createButton("Add Food");
-  addFood.position(460,60);
-
-  Bath=createButton("I want to take bath");
-  Bath.position(540,60);
-
-  Sleep=createButton("I am very Sleepy");
-  Sleep.position(360,90);
-
-  Play=createButton("Lets Play!");
-  Play.position(600,90);
-  
-  PlayInGarden=createButton("Lets Play in Park");
-  PlayInGarden.position(480,90);
+  foodObj = new Food();
+  buttons = new Buttons();
+  buttons.createButtons();
+  buttons.dogName();
 
   Engine.run(engine);
 }
@@ -95,19 +62,15 @@ function setup(){
 function draw() {  
   background(46,139,87);
   currentTime = hour();
-
-  if(gameState===0) {
-    foodObj.display();
-    if(FoodS === 0) {
-      dog.addImage(happyImg);
-    } else {
-      dog.addImage(sadImg);
-    }
+  buttons.choseButtons();
+  
+  if(gameState !== 0) {
+      database.ref('/').update({
+      gameState:gameState
+    })
   }
-
   drawSprites();
 
-  //add styles here
   fill("white");
   textSize(20);
   if(fedTime > 12) {
@@ -123,88 +86,27 @@ function draw() {
     textSize(15);
     text("Not enough Storage Space to add more Milk", 40,400);
   }
-  
-  feed.mousePressed(()=> {
-    gameState=1;
-    feedDog()
+  display = new Display();
+  display.changeDisplay();
 
-  });
-    
-  addFood.mousePressed(()=> {
-    gameState=2;
-    addFoods();
-  });
-
-  Bath.mousePressed(()=> {
-    gameState=3;
-  });
- 
-  Sleep.mousePressed(()=> {
-    gameState=4;
-  });
-
-  Play.mousePressed(()=> {
-    gameState=5;
-  });
-
-  PlayInGarden.mousePressed(()=> {
-    gameState=6;
-  });
-  if(gameState !== 0) {
-    updateStatus(gameState);
+  if(gameState==1||gameState==2) {
+    foodObj.display();
   }
-
-  if(gameState===1){
-    if (FoodS === 0) {
-      dog.addImage(sadImg);
-      fill("red");
-      text("No food left. Please add Food", 220, 430)
-    } else {
-      dog.addImage(happyImg);
+  if(gameState==3||gameState==4||gameState==5||gameState==6) {
+    if( currentTime < fedTime) {
+      currentTime = currentTime +24
     }
-    foodObj.display();
-   
+    if (currentTime - fedTime > 4 ) {
+        text("I am your Puppy " + dogName +". I am Hungry", 200,490)
+    } else {
+      text("I am your Puppy " + dogName + ". I had food at " + fedTime + ":00", 180,490 )
+    }
   }
-    
-  if(gameState===2){
-    dog.addImage(sadImg);
-    foodObj.display();
-  }
-
-  if(gameState===3){
-    background(washroomImg);
-   // text("I am your Puppy, Aster!!", 220, 490);
-    textDisplay()
-  }
-  
-  if(gameState===4){
-    background(bedroomImg);
-   // text("I am your Puppy, Aster!!", 220, 490);
-   textDisplay()
-  }
-
-  
-  if(gameState===5){
-    background(livroomImg);
-   // text("I am your Puppy, Aster!!", 220, 490);
-   textDisplay()
-  }
-
-  if(gameState===6){
-    background(gardenImg);
-   // text("I am your Puppy, Aster!!", 220, 490);
-   textDisplay()
-  }
-  
 }
 
 function readStock(data){
   FoodS=data.val();
   foodObj.getFoodStock(FoodS);
-}
-
-function readFeedTime(data){
-  fedTime=data.val();
 }
 
 function feedDog(){
@@ -218,21 +120,4 @@ function addFoods(){
   database.ref('/').update({ 
   Food:foodObj.updateFoodStock()
   })
-}
-
-function updateStatus(status){
-  database.ref('/').update({
-    gameState:status
-  })
-}
-
-function textDisplay() {
-  if( currentTime < fedTime) {
-    currentTime = currentTime +24
-  }
-  if (currentTime - fedTime > 4 ) {
-      text("I am your Puppy " + dogName +". I am Hungry", 200,490)
-  } else {
-    text("I am your Puppy " + dogName + ". I had food at " + fedTime + ":00", 180,490 )
-  }
 }
