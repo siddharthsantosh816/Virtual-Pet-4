@@ -74,11 +74,11 @@ function draw() {
   fill("white");
   textSize(20);
   if(fedTime > 12) {
-    text("Last Fed Time: " + fedTime%12 + " PM", 250,400);
+    text("Last Fed Time: " + fedTime%12 + " PM", 250,420);
   } else if (fedTime === 0) {
     text("Last Fed Time: 12 AM", 300,100);
   } else {
-    text("Last Fed Time: " + fedTime + " AM", 250,400);
+    text("Last Fed Time: " + fedTime + " AM", 250,420);
   }
   text(dogName,520,350)
 
