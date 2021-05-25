@@ -9,10 +9,12 @@ var database;
 var foodObj,addFood,feed;
 var dogName;
 var button;
-var gameState=0;
+var gameState =0;
+var fedTime, currentTime;
 var readState;
 var Bath, Sleep, Play, PlayInGarden;
 var sadImg, happyImg, milkImg,bedRoomImg, gardenImg, washRoomImg;
+
 function preload(){
 	sadImg=loadImage('images/Dog.png');
   happyImg=loadImage('images/happydog.png');
@@ -92,6 +94,8 @@ function setup(){
 
 function draw() {  
   background(46,139,87);
+  currentTime = hour();
+
   if(gameState===0) {
     foodObj.display();
     if(FoodS === 0) {
@@ -99,7 +103,6 @@ function draw() {
     } else {
       dog.addImage(sadImg);
     }
-
   }
 
   drawSprites();
@@ -147,8 +150,9 @@ function draw() {
   PlayInGarden.mousePressed(()=> {
     gameState=6;
   });
-  
-  updateStatus(gameState);
+  if(gameState !== 0) {
+    updateStatus(gameState);
+  }
 
   if(gameState===1){
     if (FoodS === 0) {
@@ -169,23 +173,27 @@ function draw() {
 
   if(gameState===3){
     background(washroomImg);
-    text("I am your Puppy, Aster!!", 220, 490);
+   // text("I am your Puppy, Aster!!", 220, 490);
+    textDisplay()
   }
   
   if(gameState===4){
     background(bedroomImg);
-    text("I am your Puppy, Aster!!", 220, 490);
+   // text("I am your Puppy, Aster!!", 220, 490);
+   textDisplay()
   }
 
   
   if(gameState===5){
     background(livroomImg);
-    text("I am your Puppy, Aster!!", 220, 490);
+   // text("I am your Puppy, Aster!!", 220, 490);
+   textDisplay()
   }
 
   if(gameState===6){
     background(gardenImg);
-    text("I am your Puppy, Aster!!", 220, 490);
+   // text("I am your Puppy, Aster!!", 220, 490);
+   textDisplay()
   }
   
 }
@@ -197,7 +205,6 @@ function readStock(data){
 
 function readFeedTime(data){
   fedTime=data.val();
-  foodObj.getLastFedTime(fedTime);
 }
 
 function feedDog(){
@@ -217,4 +224,15 @@ function updateStatus(status){
   database.ref('/').update({
     gameState:status
   })
+}
+
+function textDisplay() {
+  if( currentTime < fedTime) {
+    currentTime = currentTime +24
+  }
+  if (currentTime - fedTime > 4 ) {
+      text("I am your Puppy " + dogName +". I am Hungry", 200,490)
+  } else {
+    text("I am your Puppy " + dogName + ". I had food at " + fedTime + ":00", 180,490 )
+  }
 }
