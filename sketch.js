@@ -84,7 +84,7 @@ function draw() {
 
   if (FoodS === 30) {
     textSize(15);
-    text("Not enough Storage Space to add more Milk", 40,400);
+    text("Not enough Storage Space to add more Milk", 40,390);
   }
   display = new Display();
   display.changeDisplay();
