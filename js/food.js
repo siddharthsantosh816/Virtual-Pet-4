@@ -28,13 +28,9 @@ class Food{
             this.foodStock = this.foodStock-1;
             this.imgChange = 1;
             return this.foodStock;
-        }
+        } 
     }
-    getLastFedTime(fedtime){
-        this.lastFed=fedtime;
-    }
-
-
+  
     display() {
         var x=20, y = 120;
         imageMode(CENTER);
